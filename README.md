@@ -1,16 +1,3 @@
-[![DOI](https://zenodo.org/badge/742607049.svg)](https://zenodo.org/doi/10.5281/zenodo.10498988)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis/blob/master/LICENSE)
-![GitHub contributors](https://img.shields.io/badge/Contributors-1-brightgreen)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis)
-![GitHub issues](https://img.shields.io/github/issues/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis)
-![GitHub closed issues](https://img.shields.io/github/issues-closed/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis)
-[![GitHub Repo Size](https://img.shields.io/github/repo-size/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis.svg)](https://img.shields.io/github/repo-size/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis.svg)
-[![GitHub last commit](https://img.shields.io/github/last-commit/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis)](https://github.com/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis/commits/master)
-![GitHub language count](https://img.shields.io/github/languages/count/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis)
-[![Commit Acitivity](https://img.shields.io/github/commit-activity/m/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis)](https://github.com/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis)
-![GitHub forks](https://img.shields.io/github/forks/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis?style=social)
-![GitHub stars](https://img.shields.io/github/stars/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis?style=social)
 
 # Stock Analysis & Market Sentiment System
 
@@ -28,7 +15,6 @@ A full-stack web application that combines machine learning-based stock price pr
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 - [License](#license)
-- [Citation](#citation)
 
 ## Project Overview
 
@@ -125,8 +111,8 @@ Financial news sentiment is gathered from multiple sources:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis.git
-cd Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis
+git clone https://github.com/cultmt616god-ship-it/intelligent-stock-prediction.git
+cd intelligent-stock-prediction
 ```
 
 2. Create a virtual environment:
@@ -173,7 +159,7 @@ python main.py
 ## Project Structure
 
 ```
-Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis/
+intelligent-stock-prediction/
 ├── main.py                 # Flask application entry point
 ├── news_sentiment.py       # Sentiment analysis implementation
 ├── requirements.txt        # Python dependencies
@@ -213,25 +199,3 @@ For major changes, please open an issue first to discuss what you would like to 
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Citation
-
-If you use this software in your research, please cite it as:
-
-**APA Format:**
-Jadhav, K. (2023). Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis (Version 2.0.0) [Computer software]. https://doi.org/10.5281/zenodo.10498988
-
-**BibTeX:**
-```bibtex
-@software{Jadhav_Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis_2023,
-author = {Jadhav, Kaushik},
-doi = {10.5281/zenodo.10498988},
-month = mar,
-title = {Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis},
-url = {https://github.com/kaushikjadhav01/Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis},
-version = {2.0.0},
-year = {2023}
-}
-```
-
----
-*This project was originally developed by Kaushik Jadhav and is now maintained as an open-source educational tool.*
