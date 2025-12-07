@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Kanban Board</title>
+    <style>
+        :root {
+            --todo: #ffbe0b;
+            --in-progress: #3a86ff;
+            --review: #8338ec;
+            --done: #06d6a0;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #212529;
+            --border: #dee2e6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 {
+            color: #2b2d42;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #6c757d;
+            font-weight: 400;
+        }
+        
+        .kanban {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .column {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid;
+        }
+        
+        .column.todo { border-color: var(--todo); }
+        .column.in-progress { border-color: var(--in-progress); }
+        .column.review { border-color: var(--review); }
+        .column.done { border-color: var(--done); }
+        
+        .column-header {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .task {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #2b2d42;
+        }
+        
+        .task p {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.75rem;
+        }
+        
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.75rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #e9ecef;
+        }
+        
+        .priority {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .priority.high { background-color: #ffd6a5; color: #e85d04; }
+        .priority.medium { background-color: #bde0fe; color: #1a759f; }
+        .priority.low { background-color: #e2f3d8; color: #2b8a3e; }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin: 0.75rem 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--in-progress), var(--done));
+            width: 40%;
+            border-radius: 4px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 0 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2b2d42;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .task-list {
+            min-height: 100px;
+        }
+        
+        .subtask {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .subtask input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+        
+        .subtask.done {
+            color: #6c757d;
+            text-decoration: line-through;
+        }
+        
+        @media (max-width: 768px) {
+            .kanban {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .stat {
+                padding: 0.5rem 0;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .stat:last-child {
+                border-bottom: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Project Kanban Board</h1>
+            <p class="subtitle">End-Semester Review • Updated: <span id="current-date"></span></p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">6/15</div>
+                    <div class="stat-label">Tasks Completed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">40%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">Week 5/15</div>
+                    <div class="stat-label">Current Week</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="kanban">
+            <!-- To Do Column -->
+            <div class="column todo">
+                <div class="column-header">
+                    <span>📋 To Do (Week 6-7)</span>
+                    <span class="priority high">High</span>
+                </div>
+                <div class="task-list">
+                    <!-- Task 7 -->
+                    <div class="task">
+                        <h3>7. Sentiment Analysis Engine</h3>
+                        <div class="subtask">
+                            <input type="checkbox" id="task7-1">
+                            <label for="task7-1">Set up 7-tier data source hierarchy</label>
+                        </div>
+                        <div class="subtask">
+                            <input type="checkbox" id="task7-2">
+                            <label for="task7-2">Integrate FinVADER</label>
+                        </div>
+                        <div class="subtask">
+                            <input type="checkbox" id="task7-3">
+                            <label for="task7-3">Configure batch processing</label>
+                        </div>
+                        <div class="task-meta">
+                            <span>Due: Week 6</span>
+                            <span>🔴 High</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Task 8 -->
+                    <div class="task">
+                        <h3>8. Dividend Management</h3>
+                        <div class="subtask">
+                            <input type="checkbox" id="task8-1">
+                            <label for="task8-1">Design database schema</label>
+                        </div>
+                        <div class="subtask">
+                            <input type="checkbox" id="task8-2">
+                            <label for="task8-2">Implement transaction logic</label>
+                        </div>
+                        <div class="task-meta">
+                            <span>Due: Week 7</span>
+                            <span>🔴 High</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- In Progress Column -->
+            <div class="column in-progress">
+                <div class="column-header">
+                    <span>🔄 In Progress (Week 8-11)</span>
+                    <span class="priority medium">Medium</span>
+                </div>
+                <div class="task-list">
+                    <!-- Task 9 -->
+                    <div class="task">
+                        <h3>9. Admin Dashboard</h3>
+                        <div class="subtask">
+                            <input type="checkbox" id="task9-1" checked>
+                            <label for="task9-1" class="done">Set up role-based access</label>
+                        </div>
+                        <div class="subtask">
+                            <input type="checkbox" id="task9-2">
+                            <label for="task9-2">Build admin interfaces</label>
+                        </div>
+                        <div class="task-meta">
+                            <span>Due: Week 8</span>
+                            <span>🟡 In Progress</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Task 10 -->
+                    <div class="task">
+                        <h3>10. User Dashboard Core</h3>
+                        <div class="subtask">
+                            <input type="checkbox" id="task10-1">
+                            <label for="task10-1">Connect frontend with backend</label>
+                        </div>
+                        <div class="subtask">
+                            <input type="checkbox" id="task10-2">
+                            <label for="task10-2">Build dashboard template</label>
+                        </div>
+                        <div class="task-meta">
+                            <span>Due: Week 9</span>
+                            <span>🟡 In Progress</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Review Column -->
+            <div class="column review">
+                <div class="column-header">
+                    <span>👁️ Review (Week 10-13)</span>
+                    <span class="priority medium">Medium</span>
+                </div>
+                <div class="task-list">
+                    <!-- Task 11 -->
+                    <div class="task">
+                        <h3>11. Portfolio Visualization</h3>
+                        <div class="subtask">
+                            <input type="checkbox" id="task11-1">
+                            <label for="task11-1">Show current holdings</label>
+                        </div>
+                        <div class="subtask">
+                            <input type="checkbox" id="task11-2">
+                            <label for="task11-2">Display transaction history</label>
+                        </div>
+                        <div class="task-meta">
+                            <span>Due: Week 10</span>
+                            <span>🔵 Review</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Task 12 -->
+                    <div class="task">
+                        <h3>12. Production Security</h3>
+                        <div class="subtask">
+                            <input type="checkbox" id="task12-1">
+                            <label for="task12-1">Configure environment variables</label>
+                        </div>
+                        <div class="task-meta">
+                            <span>Due: Week 11</span>
+                            <span>🔵 Review</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Done Column -->
+            <div class="column done">
+                <div class="column-header">
+                    <span>✅ Done (Weeks 1-5)</span>
+                    <span class="priority low">Completed</span>
+                </div>
+                <div class="task-list">
+                    <!-- Completed Tasks -->
+                    <div class="task">
+                        <h3>1. Project Setup</h3>
+                        <div class="task-meta">
+                            <span>Completed: Week 1</span>
+                            <span>✅ Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="task">
+                        <h3>2. Authentication</h3>
+                        <div class="task-meta">
+                            <span>Completed: Week 2</span>
+                            <span>✅ Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="task">
+                        <h3>3. Portfolio Management</h3>
+                        <div class="task-meta">
+                            <span>Completed: Week 3</span>
+                            <span>✅ Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="task">
+                        <h3>4. Stock Repository</h3>
+                        <div class="task-meta">
+                            <span>Completed: Week 4</span>
+                            <span>✅ Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="task">
+                        <h3>5. Transaction Engine</h3>
+                        <div class="task-meta">
+                            <span>Completed: Week 5</span>
+                            <span>✅ Done</span>
+                        </div>
+                    </div>
+                    
+                    <div class="task">
+                        <h3>6. ML Prediction Service</h3>
+                        <div class="task-meta">
+                            <span>Completed: Week 5</span>
+                            <span>✅ Done</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer style="margin-top: 3rem; text-align: center; color: #6c757d; font-size: 0.875rem;">
+            <p>Project Kanban Board • Auto-generated on <span id="current-date-2"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        // Set current date
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const currentDate = new Date().toLocaleDateString('en-US', options);
+        document.getElementById('current-date').textContent = currentDate;
+        document.getElementById('current-date-2').textContent = currentDate;
+        
+        // Simulate progress updates (for demo purposes)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers for checkboxes to update progress
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateProgress);
+            });
+        });
+        
+        function updateProgress() {
+            const totalSubtasks = document.querySelectorAll('.subtask').length;
+            const completedSubtasks = document.querySelectorAll('.subtask input[type="checkbox"]:checked').length;
+            const progress = Math.round((completedSubtasks / totalSubtasks) * 100);
+            
+            // Update progress bar
+            const progressBar = document.querySelector('.progress');
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            // Update stats
+            const statValue = document.querySelectorAll('.stat-value')[1];
+            if (statValue) {
+                statValue.textContent = `${progress}%`;
+            }
+        }
+    </script>
+</body>
+</html>
