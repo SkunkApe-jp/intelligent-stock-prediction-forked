@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,600,700,800');
+
 /*@import url(../icons/font-awesome/css/font-awesome.min.css);*/
 @import url(simple-line-icons.css);
 @import url(weather-icons.min.css);
@@ -85,7 +85,7 @@ Surjith S M / @surjithctly
 
 body {
     background: #FAFAFA;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'minggola', cursive;
     margin: 0;
     overflow-x: hidden;
     color: #607d8b;
