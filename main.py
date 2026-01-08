@@ -291,7 +291,7 @@ def trade_buy():
     broker = get_active_broker()
     commission = calculate_commission(total, broker)
     if user.wallet_balance < total + commission:
-        flash('Insufficient wallet balance including commission.', 'danger')
+        flash('Insufficient wallet balance to complete this purchase.', 'balance_error')
         return redirect(url_for('dashboard'))
     company = Company.query.filter_by(symbol=symbol).first()
     if not company:
@@ -608,10 +608,10 @@ def predict():
             Quantity_date['Price'] = Quantity_date['Price'].map(lambda x: float(x))
             Quantity_date = Quantity_date.fillna(Quantity_date.bfill())
             Quantity_date = Quantity_date.drop(['Date'],axis =1)
-            fig = plt.figure(figsize=(7.2,4.8),dpi=75)
-            plt.plot(Quantity_date, color='#1F77B4')
-            plt.savefig('static/Trends.png')
-            plt.close(fig)
+            # fig = plt.figure(figsize=(7.2,4.8),dpi=75)
+            # plt.plot(Quantity_date, color='#1F77B4')
+            # plt.savefig('static/Trends.png')
+            # plt.close(fig)
             
             quantity = Quantity_date.values
             size = int(len(quantity) * 0.80)
@@ -624,12 +624,12 @@ def predict():
             arima_predicted = predictions
             
             #plot graph
-            fig = plt.figure(figsize=(7.2,4.8),dpi=65)
-            plt.plot(test, label='Actual Price', linestyle=':', color='#1F77B4')
-            plt.plot(predictions, label='Predicted Price', color='#4B73B1')
-            plt.legend(loc=4)
-            plt.savefig('static/ARIMA.png')
-            plt.close(fig)
+            # fig = plt.figure(figsize=(7.2,4.8),dpi=65)
+            # plt.plot(test, label='Actual Price', linestyle=':', color='#1F77B4')
+            # plt.plot(predictions, label='Predicted Price', color='#4B73B1')
+            # plt.legend(loc=4)
+            # plt.savefig('static/ARIMA.png')
+            # plt.close(fig)
             print()
             print("##############################################################################")
             arima_pred=predictions[-2]
@@ -751,13 +751,13 @@ def predict():
         lstm_actual = real_stock_price.flatten().tolist()
         lstm_predicted = predicted_stock_price.flatten().tolist()
         
-        fig = plt.figure(figsize=(7.2,4.8),dpi=65)
-        plt.plot(real_stock_price, label='Actual Price', linestyle=':', color='#1F77B4')  
-        plt.plot(predicted_stock_price, label='Predicted Price', color='#4B73B1')
+        # fig = plt.figure(figsize=(7.2,4.8),dpi=65)
+        # plt.plot(real_stock_price, label='Actual Price', linestyle=':', color='#1F77B4')  
+        # plt.plot(predicted_stock_price, label='Predicted Price', color='#4B73B1')
           
-        plt.legend(loc=4)
-        plt.savefig('static/LSTM.png')
-        plt.close(fig)
+        # plt.legend(loc=4)
+        # plt.savefig('static/LSTM.png')
+        # plt.close(fig)
         
         
         error_lstm = math.sqrt(mean_squared_error(real_stock_price, predicted_stock_price))
@@ -820,14 +820,14 @@ def predict():
         lr_actual = y_test.flatten().tolist()
         lr_predicted = y_test_pred.flatten().tolist()
         
-        import matplotlib.pyplot as plt2
-        fig = plt2.figure(figsize=(7.2,4.8),dpi=65)
-        plt2.plot(y_test, label='Actual Price', linestyle=':', color='#1F77B4')
-        plt2.plot(y_test_pred, label='Predicted Price', color='#4B73B1')
+        # import matplotlib.pyplot as plt2
+        # fig = plt2.figure(figsize=(7.2,4.8),dpi=65)
+        # plt2.plot(y_test, label='Actual Price', linestyle=':', color='#1F77B4')
+        # plt2.plot(y_test_pred, label='Predicted Price', color='#4B73B1')
         
-        plt2.legend(loc=4)
-        plt2.savefig('static/LR.png')
-        plt2.close(fig)
+        # plt2.legend(loc=4)
+        # plt2.savefig('static/LR.png')
+        # plt2.close(fig)
         
         error_lr = math.sqrt(mean_squared_error(y_test, y_test_pred))
         
@@ -932,8 +932,15 @@ def predict():
         df=df2
 
 
-        arima_pred, error_arima, arima_actual, arima_predicted=ARIMA_ALGO(df)
-        lstm_pred, error_lstm, lstm_actual, lstm_predicted=LSTM_ALGO(df)
+        # Enable only Linear Regression model for fastest performance
+        # arima_pred, error_arima, arima_actual, arima_predicted=ARIMA_ALGO(df)
+        # lstm_pred, error_lstm, lstm_actual, lstm_predicted=LSTM_ALGO(df)
+        
+        # Set dummy values for disabled models
+        arima_pred, error_arima, arima_actual, arima_predicted = 0, 0, [], []
+        lstm_pred, error_lstm, lstm_actual, lstm_predicted = 0, 0, [], []
+        
+        # Run only Linear Regression
         df, lr_pred, forecast_set,mean,error_lr, lr_actual, lr_predicted=LIN_REG_ALGO(df)
         
         # Use FREE news-based sentiment analysis instead of Twitter
@@ -941,7 +948,7 @@ def predict():
         print("##############################################################################")
         print("Fetching news sentiment for", quote, "...")
         print("##############################################################################")
-        polarity, sentiment_list, sentiment_pol, pos, neg, neutral = finviz_finvader_sentiment(quote)
+        polarity, sentiment_list, sentiment_pol, pos, neg, neutral = finviz_finvader_sentiment(quote, num_articles=7)
         
         idea, decision=recommending(df, polarity,today_stock,mean)
         print()
@@ -956,9 +963,10 @@ def predict():
                                forecast_set=forecast_set,error_lr=round(error_lr,2),error_lstm=round(error_lstm,2),error_arima=round(error_arima,2),
                                arima_actual=arima_actual, arima_predicted=arima_predicted,
                                lstm_actual=lstm_actual, lstm_predicted=lstm_predicted,
-                               lr_actual=lr_actual, lr_predicted=lr_predicted)
+                               lr_actual=lr_actual, lr_predicted=lr_predicted,
+                               pos=pos, neg=neg, neutral=neutral)
 if __name__ == '__main__':
-   app.run()
+   app.run(debug=True)
    
 
 

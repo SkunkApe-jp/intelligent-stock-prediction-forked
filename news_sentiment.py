@@ -901,11 +901,11 @@ class ComprehensiveSentimentAnalyzer:
             colors = ['#2ecc71', '#e74c3c', '#95a5a6']
             explode = (0.1, 0, 0) if pos > neg else (0, 0.1, 0)
             
-            fig, ax = plt.subplots(figsize=(7, 5))
-            ax.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
-            ax.axis('equal')
-            plt.savefig('static/SA.png')
-            plt.close(fig)
+            # fig, ax = plt.subplots(figsize=(7, 5))
+            # ax.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+            # ax.axis('equal')
+            # plt.savefig('static/SA.png')
+            # plt.close(fig)
             
             # Save data for persistence
         except Exception as e:
@@ -1161,7 +1161,7 @@ def log_sentiment_distribution(self, articles: List[Dict]):
     except Exception as e:
         logger.error(f"Error logging sentiment distribution: {e}")
 
-def retrieving_news_polarity(symbol, num_articles=10, 
+def retrieving_news_polarity(symbol, num_articles=7, 
                            eodhd_api_key=None, 
                            alpha_vantage_api_key=None,
                            finnhub_api_key=None,
@@ -1189,7 +1189,7 @@ def retrieving_news_polarity(symbol, num_articles=10,
     return analyzer.get_sentiment(symbol, company_name)
 
 # Convenience functions for specific source usage
-def finviz_finvader_sentiment(symbol, num_articles=10):
+def finviz_finvader_sentiment(symbol, num_articles=7):
     """Get sentiment using only Finviz + FinVADER"""
     return retrieving_news_polarity(
         symbol, 
