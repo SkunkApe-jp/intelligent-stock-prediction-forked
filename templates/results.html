@@ -942,11 +942,10 @@
                 createMultiLineChart("lr-chart", lrActual, lrPredicted, "Linear Regression Model: Actual vs Predicted", "lr-voronoi");
             });
             // Sentiment Pie Chart
-            var pos = {{ pos | tojson
-        }};
-        var neg = {{ neg | tojson }};
-        var neutral = {{ neutral | tojson }};
-        createSentimentPieChart("sentiment-pie-chart", pos, neg, neutral);
+            var pos = JSON.parse('{{ pos | tojson }}');
+            var neg = JSON.parse('{{ neg | tojson }}');
+            var neutral = JSON.parse('{{ neutral | tojson }}');
+            createSentimentPieChart("sentiment-pie-chart", pos, neg, neutral);
         });
 
         // Handle window resize
@@ -965,11 +964,10 @@
                 var lrPredicted = JSON.parse('{{ lr_predicted | tojson }}');
                 createMultiLineChart("lr-chart", lrActual, lrPredicted, "Linear Regression Model: Actual vs Predicted", "lr-voronoi");
 
-                var pos = {{ pos | tojson
-            }};
-        var neg = {{ neg | tojson }};
-        var neutral = {{ neutral | tojson }};
-        createSentimentPieChart("sentiment-pie-chart", pos, neg, neutral);
+                var pos = JSON.parse('{{ pos | tojson }}');
+                var neg = JSON.parse('{{ neg | tojson }}');
+                var neutral = JSON.parse('{{ neutral | tojson }}');
+                createSentimentPieChart("sentiment-pie-chart", pos, neg, neutral);
             }, 100);
         });
     </script>

@@ -548,36 +548,74 @@ def predict():
 
     #**************** FUNCTIONS TO FETCH DATA ***************************
     def get_historical(quote):
+        import time, os
+        quote = quote.upper()
+        filename = f'{quote}.csv'
+        
+        # 1. Reuse local data if it's up-to-date (updated today)
+        if os.path.exists(filename):
+            try:
+                df_temp = pd.read_csv(filename)
+                if not df_temp.empty and 'Date' in df_temp.columns:
+                    last_date = pd.to_datetime(df_temp['Date'].iloc[-1]).date()
+                    if last_date >= datetime.now().date():
+                        print(f"DEBUG: Reusing local up-to-date data for {quote}")
+                        return
+                    # If file exists but is old, we'll proceed to update it
+                    print(f"DEBUG: Local data for {quote} is outdated (Last date: {last_date}). Updating...")
+            except Exception as e:
+                print(f"DEBUG: Local file check failed, downloading fresh: {e}")
+
         end = datetime.now()
-        start = datetime(end.year-2,end.month,end.day)
-        data = yf.download(quote, start=start, end=end)
+        start = datetime(end.year-2, end.month, end.day)
         
-        # Flatten MultiIndex columns if present (fix for recent yfinance update)
-        if isinstance(data.columns, pd.MultiIndex):
-            data.columns = data.columns.get_level_values(0)
+        # 2. Try yfinance with multiple attempts and a custom user-agent
+        data = pd.DataFrame()
+        for attempt in range(3):
+            try:
+                import requests
+                session = requests.Session()
+                session.headers.update({
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                })
+                data = yf.download(quote, start=start, end=end, session=session, progress=False)
+                if not data.empty:
+                    break
+                time.sleep(1)
+            except Exception as e:
+                print(f"yfinance attempt {attempt+1} failed for {quote}: {e}")
+                time.sleep(1)
+
+        # 3. Process and Save yfinance data
+        if not data.empty:
+            if isinstance(data.columns, pd.MultiIndex):
+                data.columns = data.columns.get_level_values(0)
+            data = data.reset_index()
+            df = pd.DataFrame(data=data)
+            df.to_csv(filename, index=False)
+            return
+
+        # 4. Fallback to Alpha Vantage (Global symbols)
+        print(f"yfinance failed for {quote}, falling back to Alpha Vantage...")
+        try:
+            ts = TimeSeries(key='N6A6QT6IBFJOPJ70', output_format='pandas')
+            # Look up exactly what the user entered (Global search)
+            data, meta_data = ts.get_daily_adjusted(symbol=quote, outputsize='full')
             
-        # Reset index to make Date a column
-        data = data.reset_index()
-        
-        df = pd.DataFrame(data=data)
-        df.to_csv(''+quote+'.csv', index=False)
-        if(df.empty):
-            ts = TimeSeries(key='N6A6QT6IBFJOPJ70',output_format='pandas')
-            data, meta_data = ts.get_daily_adjusted(symbol='NSE:'+quote, outputsize='full')
-            #Format df
-            #Last 2 yrs rows => 502, in ascending order => ::-1
-            data=data.head(503).iloc[::-1]
-            data=data.reset_index()
-            #Keep Required cols only
-            df=pd.DataFrame()
-            df['Date']=data['date']
-            df['Open']=data['1. open']
-            df['High']=data['2. high']
-            df['Low']=data['3. low']
-            df['Close']=data['4. close']
-            df['Adj Close']=data['5. adjusted close']
-            df['Volume']=data['6. volume']
-            df.to_csv(''+quote+'.csv',index=False)
+            data = data.head(503).iloc[::-1]
+            data = data.reset_index()
+            df = pd.DataFrame()
+            df['Date'] = data['date']
+            df['Open'] = data['1. open']
+            df['High'] = data['2. high']
+            df['Low'] = data['3. low']
+            df['Close'] = data['4. close']
+            df['Adj Close'] = data['5. adjusted close']
+            df['Volume'] = data['6. volume']
+            df.to_csv(filename, index=False)
+        except Exception as e:
+            print(f"Global lookup failed for {quote}: {e}")
+            raise Exception(f"Could not fetch data for {quote} from any source.")
         return
 
     #******************** ARIMA SECTION ********************
@@ -912,7 +950,10 @@ def predict():
     #Try-except to check if valid stock symbol
     try:
         get_historical(quote)
-    except:
+    except Exception as e:
+        print(f"DEBUG: Error in get_historical for {quote}: {e}")
+        import traceback
+        traceback.print_exc()
         return render_template('index.html',not_found=True)
     else:
     
