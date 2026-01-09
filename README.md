@@ -101,6 +101,65 @@ Financial news sentiment is gathered from multiple sources:
 - Alternative news sources as fallbacks
 - Aggregation of sentiment scores over time windows
 
+## 🚀 Quick Start for New Users
+
+If you're downloading or cloning this project for the first time, follow these steps immediately:
+
+### 1. Install Python 3.7+
+Make sure you have Python installed. Download from [python.org](https://www.python.org/downloads/)
+
+### 2. Create a Virtual Environment
+```bash
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+```
+
+### 3. Install All Dependencies (CRITICAL)
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Create Admin Account (Required for Dashboard Access)
+```bash
+# On Windows:
+.\venv\Scripts\python create_admin.py
+# On Mac/Linux:
+python3 create_admin.py
+```
+This creates the default admin account: `admin@example.com` / `admin123`
+
+### 5. Download NLTK Data (Required for Sentiment Analysis)
+
+**What is NLTK?** NLTK (Natural Language Toolkit) is a Python library that processes text to understand sentiment (positive/negative/neutral). The project uses it to analyze financial news and determine market sentiment.
+
+**How to download NLTK data:**
+```bash
+python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')
+```
+
+Or interactively:
+```bash
+python
+>>> import nltk
+>>> nltk.download()  # Opens a GUI - select all packages to download
+```
+
+### 6. Verify Chrome Browser (Required for News Scraping)
+The sentiment analysis uses Selenium to scrape news. Make sure **Google Chrome** is installed on your system. The project uses webdriver-manager to auto-download the driver, but Chrome itself must be present.
+
+### 7. Run the Application
+```bash
+python main.py
+```
+
+### 8. Open in Browser
+Go to: http://localhost:5000
+
+---
+
 ## Installation
 
 ### Prerequisites
@@ -111,7 +170,7 @@ Financial news sentiment is gathered from multiple sources:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/cultmt616god-ship-it/intelligent-stock-prediction.git
+git clone https://github.com/SkunkApe-jp/intelligent-stock-prediction-forked.git
 cd intelligent-stock-prediction
 ```
 
