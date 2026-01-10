@@ -569,16 +569,12 @@ def predict():
         end = datetime.now()
         start = datetime(end.year-2, end.month, end.day)
         
-        # 2. Try yfinance with multiple attempts and a custom user-agent
+        # 2. Try yfinance with multiple attempts
         data = pd.DataFrame()
         for attempt in range(3):
             try:
-                import requests
-                session = requests.Session()
-                session.headers.update({
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                })
-                data = yf.download(quote, start=start, end=end, session=session, progress=False)
+                # Removed custom session as it caused issues with curl_cffi in this environment
+                data = yf.download(quote, start=start, end=end, progress=False)
                 if not data.empty:
                     break
                 time.sleep(1)
@@ -599,8 +595,12 @@ def predict():
         print(f"yfinance failed for {quote}, falling back to Alpha Vantage...")
         try:
             ts = TimeSeries(key='N6A6QT6IBFJOPJ70', output_format='pandas')
-            # Look up exactly what the user entered (Global search)
-            data, meta_data = ts.get_daily_adjusted(symbol=quote, outputsize='full')
+            # Use get_daily instead of get_daily_adjusted as the latter is often premium
+            try:
+                data, meta_data = ts.get_daily(symbol=quote, outputsize='full')
+            except Exception as e:
+                print(f"Direct Alpha Vantage lookup failed: {e}. Trying NSE fallback...")
+                data, meta_data = ts.get_daily(symbol='NSE:'+quote, outputsize='full')
             
             data = data.head(503).iloc[::-1]
             data = data.reset_index()
@@ -610,8 +610,9 @@ def predict():
             df['High'] = data['2. high']
             df['Low'] = data['3. low']
             df['Close'] = data['4. close']
-            df['Adj Close'] = data['5. adjusted close']
-            df['Volume'] = data['6. volume']
+            # Map Close to Adj Close for consistency since non-adjusted doesn't have it
+            df['Adj Close'] = data['4. close']
+            df['Volume'] = data['5. volume']
             df.to_csv(filename, index=False)
         except Exception as e:
             print(f"Global lookup failed for {quote}: {e}")
@@ -882,63 +883,32 @@ def predict():
         print("##############################################################################")
         return df, lr_pred, forecast_set, mean, error_lr, lr_actual, lr_predicted
 
-    def recommending(df, global_polarity,today_stock,mean):
-            count=20 #Num of tweets to be displayed on web page
-            #Convert to Textblob format for assigning polarity
-            tw2 = tweet.full_text
-            tw = tweet.full_text
-            #Clean
-            tw=p.clean(tw)
-            #print("-------------------------------CLEANED TWEET-----------------------------")
-            #print(tw)
-            #Replace &amp; by &
-            tw=re.sub('&amp;','&',tw)
-            #Remove :
-            tw=re.sub(':','',tw)
-            #print("-------------------------------TWEET AFTER REGEX MATCHING-----------------------------")
-            #print(tw)
-            #Remove Emojis and Hindi Characters
-            tw=tw.encode('ascii', 'ignore').decode('ascii')
-
-            #print("-------------------------------TWEET AFTER REMOVING NON ASCII CHARS-----------------------------")
-            #print(tw)
-            blob = TextBlob(tw)
-            polarity = 0 #Polarity of single individual tweet
-            for sentence in blob.sentences:
-                   
-                polarity += sentence.sentiment.polarity
-                if polarity>0:
-                    pos=pos+1
-                if polarity<0:
-                    neg=neg+1
-                
-                global_polarity += sentence.sentiment.polarity
-            if count > 0:
-                tw_list.append(tw2)
-                
-            tweet_list.append(Tweet(tw, polarity))
-
-
-    def recommending(df, global_polarity,today_stock,mean):
-        if today_stock.iloc[-1]['Close'] < mean:
-            if global_polarity > 0:
-                idea="RISE"
-                decision="BUY"
-                print()
-                print("##############################################################################")
-                print("According to the ML Predictions and Sentiment Analysis, a",idea,"in",quote,"stock is expected => ",decision)
-            elif global_polarity <= 0:
-                idea="FALL"
-                decision="SELL"
-                print()
-                print("##############################################################################")
-                print("According to the ML Predictions and Sentiment Analysis, a",idea,"in",quote,"stock is expected => ",decision)
+    def recommending(df, global_polarity, today_stock, mean):
+        current_price = today_stock.iloc[-1]['Close']
+        
+        # Determine Idea (RISE/FALL) based on predicted mean vs current price
+        if current_price < mean:
+            idea = "RISE"
         else:
-            idea="FALL"
-            decision="SELL"
-            print()
-            print("##############################################################################")
-            print("According to the ML Predictions and Sentiment Analysis, a",idea,"in",quote,"stock is expected => ",decision)
+            idea = "FALL"
+            
+        # Determine Decision based on BOTH Price Action and Sentiment
+        if idea == "RISE":
+            if global_polarity > 0:
+                decision = "STRONG BUY"
+            else:
+                decision = "BUY (Technical)"
+        else: # idea == "FALL"
+            if global_polarity > 0:
+                decision = "HOLD / CAUTION"
+            else:
+                decision = "STRONG SELL"
+                
+        print()
+        print("##############################################################################")
+        print(f"Recommendation for {quote}: Prediction={idea}, Sentiment={'Positive' if global_polarity > 0 else 'Negative/Neutral'} => {decision}")
+        print("##############################################################################")
+        
         return idea, decision
 
 

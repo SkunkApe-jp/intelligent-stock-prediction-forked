@@ -198,50 +198,7 @@
                 </div>
             </div>
 
-            <!-- Tomorrow's predictions -->
-            <div class="row">
-                <!-- ARIMA prediction hidden - LR only mode -->
-                <div class="col-12 col-lg-4 mb-4" style="display: none;">
-                    <div class="card bg-success p-20 h-100">
-                        <div class="media widget-ten">
-                            <div class="media-left meida media-middle">
-                                <span><i class="ti-vector f-s-40"></i></span>
-                            </div>
-                            <div class="media-body media-text-right">
-                                <h2 class="color-white text-white">{{arima_pred}}</h2>
-                                <p class="m-b-0 text-white">Tomorrow's {{quote}} close (ARIMA)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- LSTM prediction hidden - LR only mode -->
-                <div class="col-12 col-lg-4 mb-4" style="display: none;">
-                    <div class="card bg-warning p-20 h-100">
-                        <div class="media widget-ten">
-                            <div class="media-left meida media-middle">
-                                <span><i class="ti-comment f-s-40"></i></span>
-                            </div>
-                            <div class="media-body media-text-right">
-                                <h2 class="color-white text-white">{{lstm_pred}}</h2>
-                                <p class="m-b-0 text-white">Tomorrow's {{quote}} close (LSTM)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-lg-12 mb-4">
-                    <div class="card bg-danger p-20 h-100">
-                        <div class="media widget-ten">
-                            <div class="media-left meida media-middle">
-                                <span><i class="ti-location-pin f-s-40"></i></span>
-                            </div>
-                            <div class="media-body media-text-right">
-                                <h2 class="color-white text-white">{{lr_pred}}</h2>
-                                <p class="m-b-0 text-white">Tomorrow's {{quote}} close (Linear Regression)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Model error metrics -->
             <div class="row">
@@ -325,7 +282,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 mb-4">
+                <div class="col-12 col-lg-6 mb-4">
                     <div class="card h-100">
                         <div class="card-title">
                             <h4>Sentiment analysis for {{quote}}</h4>
@@ -336,45 +293,26 @@
                     </div>
                 </div>
                 <div class="col-12 col-lg-6 mb-4">
-                    <div class="card h-100" style="display: none;">
+                    <div class="card h-100">
                         <div class="card-title">
                             <h4>Predicted {{quote}} price for the next 7 days</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table">
+                                <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th></th>
-                                            <th>Close</th>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
+                                            <th>Day</th>
+                                            <th>Price Forecast</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {% for row in forecast_set %}
                                         <tr>
-                                            <td>
-                                                <div class="yahoo-link-wrapper">
-                                                    <a href="https://finance.yahoo.com/quote/{{quote}}" target="_blank"
-                                                        rel="noopener" class="btn-yahoo-link">
-                                                        <span class="btn-yahoo-label">View on Yahoo Finance</span>
-                                                        <span class="btn-yahoo-icon">↗</span>
-                                                    </a>
-                                                    <div class="yahoo-link-subtitle">
-                                                        Open the full quote, chart, and fundamentals.
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                {% for row in forecast_set %}
-                                                {{row[0]}}<br>
-                                                {% endfor %}
-                                            </td>
-                                            <td><span></span></td>
-                                            <td><span></span></td>
-                                            <td><span class="badge badge-success"></span></td>
+                                            <td>Day {{ loop.index }}</td>
+                                            <td><strong>{{ row[0]|round(2) }}</strong></td>
                                         </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
