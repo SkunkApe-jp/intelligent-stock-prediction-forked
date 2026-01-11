@@ -252,7 +252,8 @@ def logout():
 @login_required()
 def dashboard():
     user = get_current_user()
-    items = PortfolioItem.query.filter_by(user_id=user.id).all()
+    # Only show items with quantity > 0
+    items = PortfolioItem.query.filter_by(user_id=user.id).filter(PortfolioItem.quantity > 0).all()
     transactions = Transaction.query.filter_by(user_id=user.id).order_by(Transaction.created_at.desc()).limit(20).all()
     total_invested = Decimal('0')
     total_current = Decimal('0')
@@ -358,8 +359,7 @@ def trade_sell():
     broker = get_active_broker()
     commission = calculate_commission(total, broker)
     item.quantity = item.quantity - quantity
-    if item.quantity == 0:
-        db.session.delete(item)
+    # Do not delete the item even if quantity is 0, to preserve dividend history
     user.wallet_balance = user.wallet_balance + (total - commission)
     if broker and commission > 0:
         description = f'Simulated sell order via {broker.name} ({broker.commission_rate}% commission)'
