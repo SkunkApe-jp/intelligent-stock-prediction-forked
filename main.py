@@ -170,7 +170,7 @@ def get_latest_close_price(symbol):
 
 
 def get_active_broker():
-    return Broker.query.filter_by(is_active=True).order_by(Broker.id.asc()).first()
+    return Broker.query.filter_by(is_active=True).order_by(Broker.commission_rate.asc()).first()
 
 
 def calculate_commission(total_amount, broker):

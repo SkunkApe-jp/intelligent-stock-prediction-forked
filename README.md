@@ -112,6 +112,7 @@ Make sure you have Python installed. Download from [python.org](https://www.pyth
 ```bash
 python -m venv venv
 # On Windows:
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 venv\Scripts\activate
 # On Mac/Linux:
 source venv/bin/activate

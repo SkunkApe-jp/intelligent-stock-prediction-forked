@@ -67,12 +67,20 @@ except ImportError:
 # Import for data persistence
 import pickle
 
-# Download VADER lexicon
-try:
-    nltk.data.find('sentiment/vader_lexicon.zip')
-except LookupError:
-    print("Downloading VADER lexicon...")
-    nltk.download('vader_lexicon')
+# Download required NLTK data
+required_nltk_data = {
+    'vader_lexicon': 'sentiment/vader_lexicon.zip',
+    'punkt': 'tokenizers/punkt',
+    'stopwords': 'corpora/stopwords',
+    'wordnet': 'corpora/wordnet'
+}
+
+for dataset, path in required_nltk_data.items():
+    try:
+        nltk.data.find(path)
+    except LookupError:
+        print(f"Downloading NLTK dataset: {dataset}...")
+        nltk.download(dataset)
 
 # Define sentiment source options
 class SentimentSource(Enum):

@@ -17,3 +17,9 @@ finvader
 newspaper3k
 aiohttp
 flask_sqlalchemy
+webdriver-manager
+lxml_html_clean
+selenium
+requests
+beautifulsoup4
+tenacity
