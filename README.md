@@ -132,31 +132,15 @@ python3 create_admin.py
 ```
 This creates the default admin account: `admin@example.com` / `admin123`
 
-### 5. Download NLTK Data (Required for Sentiment Analysis)
-
-**What is NLTK?** NLTK (Natural Language Toolkit) is a Python library that processes text to understand sentiment (positive/negative/neutral). The project uses it to analyze financial news and determine market sentiment.
-
-**How to download NLTK data:**
+### 5. Run the Application
 ```bash
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')
+# On Windows:
+.\venv\Scripts\python main.py
+# On Mac/Linux:
+python3 main.py
 ```
 
-Or interactively:
-```bash
-python
->>> import nltk
->>> nltk.download()  # Opens a GUI - select all packages to download
-```
-
-### 6. Verify Chrome Browser (Required for News Scraping)
-The sentiment analysis uses Selenium to scrape news. Make sure **Google Chrome** is installed on your system. The project uses webdriver-manager to auto-download the driver, but Chrome itself must be present.
-
-### 7. Run the Application
-```bash
-python main.py
-```
-
-### 8. Open in Browser
+### 6. Open in Browser
 Go to: http://localhost:5000
 
 ---

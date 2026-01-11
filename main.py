@@ -255,15 +255,56 @@ def dashboard():
     # Only show items with quantity > 0
     items = PortfolioItem.query.filter_by(user_id=user.id).filter(PortfolioItem.quantity > 0).all()
     transactions = Transaction.query.filter_by(user_id=user.id).order_by(Transaction.created_at.desc()).limit(20).all()
-    total_invested = Decimal('0')
-    total_current = Decimal('0')
+    
+    # Calculate Current Portfolio Value & Cost of Held
+    current_portfolio_value = Decimal('0')
+    cost_of_held = Decimal('0')
+    
     for item in items:
-        invested = Decimal(item.average_buy_price) * Decimal(item.quantity)
-        total_invested += invested
-        last_price = get_latest_close_price(item.company.symbol) or float(item.average_buy_price)
-        total_current += Decimal(str(last_price)) * Decimal(item.quantity)
+        # Fetch live price
+        live_price = get_latest_close_price(item.company.symbol)
+        # Fallback to average buy price if live price unavailable
+        current_price = Decimal(str(live_price)) if live_price is not None else item.average_buy_price
+        
+        # Attach current price to the item for the template
+        item.current_price = current_price
+        
+        item_qty = Decimal(item.quantity)
+        current_portfolio_value += current_price * item_qty
+        cost_of_held += item.average_buy_price * item_qty
+
+    # Calculate Realized Profit
+    # Formula: (Total Sells + Total Dividends - Commissions) - (Total Buys - Cost of Held)
+    
+    # Get aggregates from DB for efficiency, or loop if volume is low. 
+    # Since we need precise sums for the user, a query is better but we can iterate if we want to be safe with types.
+    # Given the likely small scale, a query is cleaner.
+    
+    all_txns = Transaction.query.filter_by(user_id=user.id).all()
+    total_buys = Decimal('0')
+    total_sells = Decimal('0')
+    total_dividends = Decimal('0')
+    total_commissions = Decimal('0')
+    
+    for t in all_txns:
+        amt = t.total_amount if t.total_amount is not None else Decimal('0')
+        comm = t.commission_amount if t.commission_amount is not None else Decimal('0')
+        
+        total_commissions += comm
+        
+        if t.txn_type == 'BUY':
+            total_buys += amt
+        elif t.txn_type == 'SELL':
+            total_sells += amt
+        elif t.txn_type == 'DIVIDEND':
+            total_dividends += amt
+            
+    cost_of_sold = total_buys - cost_of_held
+    realized_profit = (total_sells + total_dividends) - cost_of_sold - total_commissions
+
     return render_template('dashboard.html', user=user, items=items, transactions=transactions,
-                           total_invested=total_invested, total_current=total_current)
+                           current_portfolio_value=current_portfolio_value,
+                           realized_profit=realized_profit)
 
 
 @app.route('/trade/buy', methods=['POST'])
@@ -437,7 +478,6 @@ def record_dividend():
 @login_required(role='admin')
 def admin_dashboard():
     user_count = User.query.count()
-    active_users = User.query.filter_by(is_active=True).count()
     broker_count = Broker.query.count()
     transaction_count = Transaction.query.count()
     company_count = Company.query.count()
@@ -473,7 +513,6 @@ def admin_dashboard():
     return render_template(
         'admin_dashboard.html',
         user_count=user_count,
-        active_users=active_users,
         broker_count=broker_count,
         transaction_count=transaction_count,
         company_count=company_count,
@@ -514,29 +553,7 @@ def admin_add_broker():
     return redirect(url_for('admin_dashboard'))
 
 
-@app.route('/admin/companies', methods=['POST'])
-@login_required(role='admin')
-def admin_add_company():
-    verify_csrf()
-    symbol = request.form.get('symbol', '').strip().upper()
-    name = request.form.get('name', '').strip()
-    exchange = request.form.get('exchange', '').strip()
-    sector = request.form.get('sector', '').strip()
-    is_active_raw = request.form.get('is_active')
-    if not symbol:
-        flash('Company symbol is required.', 'danger')
-        return redirect(url_for('admin_dashboard'))
-    company = Company.query.filter_by(symbol=symbol).first()
-    if not company:
-        company = Company(symbol=symbol)
-        db.session.add(company)
-    company.name = name or symbol
-    company.exchange = exchange or None
-    company.sector = sector or None
-    company.is_active = bool(is_active_raw)
-    db.session.commit()
-    flash('Company saved.', 'success')
-    return redirect(url_for('admin_dashboard'))
+
 
 @app.route('/')
 def index():
