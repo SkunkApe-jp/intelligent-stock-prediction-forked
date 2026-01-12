@@ -154,7 +154,20 @@
                                         <tr>
                                             <td>{{ item.company.symbol }}</td>
                                             <td>{{ item.quantity }}</td>
-                                            <td>{{ '%.2f'|format(item.current_price) }}</td>
+                                            <td>
+                                                {{ '%.2f'|format(item.current_price) }}
+                                                {% if item.change_direction == 'up' %}
+                                                <span class="text-success" style="margin-left: 5px;">
+                                                    <i class="ti-arrow-up"></i> +{{ '%.2f'|format(item.diff) }} (+{{
+                                                    '%.2f'|format(item.percent_change) }}%)
+                                                </span>
+                                                {% elif item.change_direction == 'down' %}
+                                                <span class="text-danger" style="margin-left: 5px;">
+                                                    <i class="ti-arrow-down"></i> {{ '%.2f'|format(item.diff) }} ({{
+                                                    '%.2f'|format(item.percent_change) }}%)
+                                                </span>
+                                                {% endif %}
+                                            </td>
                                             <td>
                                                 <form method="POST" action="{{ url_for('trade_buy') }}"
                                                     class="d-inline">

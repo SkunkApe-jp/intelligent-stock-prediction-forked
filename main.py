@@ -166,7 +166,11 @@ def get_latest_close_price(symbol):
         return None
     if isinstance(data.columns, pd.MultiIndex):
         data.columns = data.columns.get_level_values(0)
-    return float(data['Close'].iloc[-1])
+    
+    if len(data) >= 2:
+        return float(data['Close'].iloc[-1]), float(data['Close'].iloc[-2])
+    else:
+        return float(data['Close'].iloc[-1]), float(data['Close'].iloc[-1])
 
 
 def get_active_broker():
@@ -262,9 +266,29 @@ def dashboard():
     
     for item in items:
         # Fetch live price
-        live_price = get_latest_close_price(item.company.symbol)
-        # Fallback to average buy price if live price unavailable
-        current_price = Decimal(str(live_price)) if live_price is not None else item.average_buy_price
+        price_data = get_latest_close_price(item.company.symbol)
+        
+        item.diff = Decimal('0')
+        item.percent_change = Decimal('0')
+        item.change_direction = None
+        
+        if price_data:
+            live_price = price_data[0]
+            current_price = Decimal(str(live_price))
+            
+            # Calculate difference vs Average Buy Price
+            diff = current_price - item.average_buy_price
+            item.diff = diff
+            
+            if item.average_buy_price > 0:
+                item.percent_change = (diff / item.average_buy_price) * 100
+            
+            if diff > 0:
+                item.change_direction = 'up'
+            elif diff < 0:
+                item.change_direction = 'down'
+        else:
+            current_price = item.average_buy_price
         
         # Attach current price to the item for the template
         item.current_price = current_price
@@ -325,10 +349,11 @@ def trade_buy():
     if not symbol:
         flash('Symbol is required.', 'danger')
         return redirect(url_for('dashboard'))
-    price = get_latest_close_price(symbol)
-    if price is None:
+    price_data = get_latest_close_price(symbol)
+    if price_data is None:
         flash('Unable to fetch latest price for symbol.', 'danger')
         return redirect(url_for('dashboard'))
+    price = price_data[0]
     total = Decimal(str(price)) * Decimal(quantity)
     broker = get_active_broker()
     commission = calculate_commission(total, broker)
@@ -392,10 +417,11 @@ def trade_sell():
     if not item or item.quantity < quantity:
         flash('Not enough shares to sell.', 'danger')
         return redirect(url_for('dashboard'))
-    price = get_latest_close_price(symbol)
-    if price is None:
+    price_data = get_latest_close_price(symbol)
+    if price_data is None:
         flash('Unable to fetch latest price for symbol.', 'danger')
         return redirect(url_for('dashboard'))
+    price = price_data[0]
     total = Decimal(str(price)) * Decimal(quantity)
     broker = get_active_broker()
     commission = calculate_commission(total, broker)
