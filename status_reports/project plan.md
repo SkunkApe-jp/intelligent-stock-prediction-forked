@@ -14,11 +14,11 @@ The system combines:
 
 ## 2. Objectives
 
-- **O1 &mdash; Portfolio & Fund Management:** Enable users to maintain customer and company profiles, manage holdings, and track cash and dividends.
-- **O2 &mdash; Trading Simulation:** Support safe, simulated buy/sell orders with proper validation and transaction history.
-- **O3 &mdash; Prediction Engine:** Integrate ML models (LSTM, regression) for future price forecasts integrated into the UI.
-- **O4 &mdash; Reporting & Monitoring:** Provide dashboards, billing, and admin tools for monitoring activity and performance.
-- **O5 &mdash; Quality & Robustness:** Deliver a secure, tested, and well‑documented application suitable for academic submission and demonstration.
+- **O1 Portfolio & Fund Management:** Enable users to maintain customer and company profiles, manage holdings, and track cash and dividends.
+- **O2 Trading Simulation:** Support safe, simulated buy/sell orders with proper validation and transaction history.
+- **O3 Prediction Engine:** Integrate ML models (LSTM, regression) for future price forecasts integrated into the UI.
+- **O4 Reporting & Monitoring:** Provide dashboards, billing, and admin tools for monitoring activity and performance.
+- **O5 Quality & Robustness:** Deliver a secure, tested, and well‑documented application suitable for academic submission and demonstration.
 
 ## 3. Scope Summary
 
@@ -50,32 +50,33 @@ The system combines:
 
 **Remaining (Tasks 7–15):**
 7. Sentiment analysis engine  
-8. Dividend management system  
-9. Admin service and dashboard  
-10. Background jobs and scheduling  
-11. Notification system  
-12. Reporting system  
-13. Clean minimalist UI implementation  
-14. Error handling and validation  
-15. Security implementation  
+8. Stock symbol extraction (NER) from text using llms*  
+9. Dividend management system  
+10. Admin service and dashboard  
+11. Background jobs and scheduling  
+12. Notification system  
+13. Reporting system  
+14. Clean minimalist UI implementation  
+15. Error handling and validation  
+16. Security implementation  
 
 ### 4.2 Final‑Semester Work (Tasks 16–30)
 
-16. Logging and monitoring  
-17. Testing implementation  
-18. Deployment preparation  
-19. Final integration and testing  
-20. Documentation and cleanup  
-21. Comprehensive performance testing  
-22. Comprehensive security testing  
-23. Usability testing  
-24. Compatibility testing  
-25. Accessibility testing  
-26. Regression testing suite  
-27. Recovery and resilience testing  
-28. Acceptance testing  
-29. Test automation and CI/CD integration  
-30. Testing documentation and knowledge transfer  
+17. Logging and monitoring  
+18. Testing implementation  
+19. Deployment preparation  
+20. Final integration and testing  
+21. Documentation and cleanup  
+22. Comprehensive performance testing  
+23. Comprehensive security testing  
+24. Usability testing  
+25. Compatibility testing  
+26. Accessibility testing  
+27. Regression testing suite  
+28. Recovery and resilience testing  
+29. Acceptance testing  
+30. Test automation and CI/CD integration  
+31. Testing documentation and knowledge transfer  
 
 ## 5. Timeline and Gantt Chart
 
@@ -98,22 +99,22 @@ The roadmap defines a week‑by‑week plan (Weeks 6–21). The Gantt‑style ta
 
 ### 5.2 Milestones
 
-- **M1 &mdash; End‑Semester Completion:** 15/30 tasks completed (Tasks 1–15).  
+- **M1 End‑Semester Completion:** 15/30 tasks completed (Tasks 1–15).  
   Target: End of current semester.
-- **M2 &mdash; Final Integration:** Tasks 16–21 done; full system integrated and documented.  
+- **M2 Final Integration:** Tasks 16–21 done; full system integrated and documented.  
   Target: By end of Weeks 14–15.
-- **M3 &mdash; Quality & Testing Complete:** Tasks 22–30 done; test suites, automation, and documentation finalized.  
+- **M3 Quality & Testing Complete:** Tasks 22–30 done; test suites, automation, and documentation finalized.  
   Target: End of final year (Weeks 20–21 window).
 
 ## 6. Risks and Mitigations (Brief)
 
-- **R1 &mdash; Model complexity and training time**  
+- **R1 Model complexity and training time**  
   *Mitigation:* Keep LSTM architecture lightweight; use pre‑prepared datasets and offline training.
 
-- **R2 &mdash; Scope creep in UI and analytics**  
+- **R2 Scope creep in UI and analytics**  
   *Mitigation:* Prioritize core flows: registration, portfolio, trades, prediction, and basic dashboards.
 
-- **R3 &mdash; Testing and performance backlog**  
+- **R3 Testing and performance backlog**  
   *Mitigation:* Reserve explicit weeks (16–21) for structured testing, regression, and performance work as per roadmap.
 
 ## 7. Deliverables
