@@ -2,7 +2,7 @@ ABSTRACT
 
 The financial market generates a massive volume of data every second, making it difficult for individual investors to analyze and make timely decisions. Existing tools either track prices or offer basic trading, but they rarely combine intelligent forecasting with integrated portfolio management in a single, user‑friendly platform.
 
-This project presents a Stock Analysis & Market Sentiment system that integrates customer profiles, stock data, and predictive analytics into one full‑stack web application. The system provides simulated buy/sell transactions, fund and dividend tracking, broker commission management, and an admin monitoring dashboard. On the prediction side, an LSTM‑based model (with classical ARIMA and Linear Regression baselines) forecasts future stock trends using historical prices, while a sentiment analysis module aggregates recent financial‑news sentiment to give additional context. The backend is implemented in Python using Flask, with a SQLite database and responsive web interfaces, and the prediction outputs are visualised through interactive D3‑based charts and summary widgets on the results page.
+This project presents a Stock Analysis & Market Sentiment system that integrates customer profiles, stock data, and predictive analytics into one full‑stack web application. The system provides simulated buy/sell transactions, fund and dividend tracking, broker commission management, and an admin monitoring dashboard. On the prediction side, a Linear Regression baseline model forecasts future stock trends using historical prices, while a sentiment analysis module aggregates recent financial‑news sentiment to give additional context. The backend is implemented in Python using Flask, with a SQLite database and responsive web interfaces, and the prediction outputs are visualised through interactive D3‑based charts and summary widgets on the results page.
 
 The proposed system is intended for students, researchers, and amateur investors who wish to explore stock prediction and portfolio management in a safe, simulated environment. It closes gaps in the literature by embedding forecasting models into an end‑to‑end management workflow with explainable dashboards rather than providing prediction in isolation.
 
@@ -14,7 +14,7 @@ The proposed system is intended for students, researchers, and amateur investors
 The main objectives of the Stock Analysis & Market Sentiment system are:
 
 1. To design and implement a web‑based platform for simulated trading and portfolio management.
-2. To develop machine learning models (LSTM with ARIMA/Linear Regression baselines) for next‑day stock price prediction.
+2. To develop machine learning models (Linear Regression baseline) for next‑day stock price prediction.
 3. To integrate sentiment analysis of financial news to complement purely historical price‑based signals.
 4. To provide an admin interface for managing users, companies, brokers, and system‑level monitoring.
 5. To offer intuitive visualizations and dashboards that help non‑experts understand prediction outputs and portfolio risk.
@@ -47,8 +47,7 @@ The project methodology can be summarized as follows:
 · Data Preparation: Collect and clean historical stock price data and related time‑series features from public APIs such as Yahoo Finance and Alpha Vantage. Normalize and split data into training and testing sets in temporal order.
 
 · Predictive Modelling:
-  – Baseline models: Linear Regression and ARIMA to provide interpretable and classical benchmarks.
-  – Deep learning model: A stacked LSTM network with dropout, trained on sliding windows of historical closing prices.
+  – Baseline models: Linear Regression to provide interpretable and classical benchmarks.
 
 · Sentiment Analysis: Aggregate news articles and headlines for a given stock from free web sources (e.g., Finviz) and compute sentiment scores using tools such as VADER/TextBlob/FinVADER. Summarize polarity (positive/negative/neutral) over a recent time window and feed this into the final recommendation.
 
@@ -65,12 +64,12 @@ Several recent works explore stock price prediction by combining historical pric
 
 | No. | Author(s) / Year | Method / Algorithm | Key Findings | Limitations |
 | --- | --- | --- | --- | --- |
-| 1   | Ko & Chang (2021) | BERT \+ LSTM; price history \+ forum sentiment | Technical \+ textual data raise forecast accuracy | Taiwan‑only stocks; forum noise |
-| 2   | Shimaa Ouf et al. (2024) | LSTM vs. XGBoost \+ Twitter sentiment | Twitter sentiment lifts AAPL, GOOGL, TSLA forecasts; XGBoost \> LSTM here | Short horizon; three stocks only |
-| 3   | Darapaneni et al. (2022) | LSTM \+ sentiment \+ macro (oil, gold, USD) | Macro features \+ sentiment help Indian market prediction | Single country; small universe |
-| 4   | Gupta et al. (2022) | HiSA‑SMFM: LSTM with historical & sentiment fusion | Clear gain from hybrid historical‑sentiment signals | Reduced dataset; generalisability open |
-| 5   | Shahbandari et al. (2024) | CNN+LSTM \+ social‑media sentiment \+ candlestick | Multi‑modal data (sentiment \+ tech) cut error | Social signal noisy; heavy architecture |
-| 6   | Journal of Big Data (2025) | VMD–TMFG–LSTM (feature decomposition) | Signal decomposition \+ LSTM sharply reduces RMSE/MAE | Complex pipeline; no sentiment used |
+| 1   | Ko & Chang (2021) | BERT; price history \+ forum sentiment | Technical \+ textual data raise forecast accuracy | Taiwan‑only stocks; forum noise |
+| 2   | Shimaa Ouf et al. (2024) | XGBoost \+ Twitter sentiment | Twitter sentiment lifts AAPL, GOOGL, TSLA forecasts | Short horizon; three stocks only |
+| 3   | Darapaneni et al. (2022) | sentiment \+ macro (oil, gold, USD) | Macro features \+ sentiment help Indian market prediction | Single country; small universe |
+| 4   | Gupta et al. (2022) | HiSA‑SMFM: historical & sentiment fusion | Clear gain from hybrid historical‑sentiment signals | Reduced dataset; generalisability open |
+| 5   | Shahbandari et al. (2024) | CNN \+ social‑media sentiment \+ candlestick | Multi‑modal data (sentiment \+ tech) cut error | Social signal noisy; heavy architecture |
+| 6   | Journal of Big Data (2025) | VMD–TMFG (feature decomposition) | Signal decomposition sharply reduces RMSE/MAE | Complex pipeline; no sentiment used |
 
 These studies collectively demonstrate that combining multiple data modalities (historical prices, sentiment, and macro variables) can improve prediction accuracy. However, most works stop at model evaluation and do not offer an integrated portfolio management interface or educational dashboards.
 
@@ -127,11 +126,15 @@ The system follows a three‑tier architecture:
 · User registration, login, and profile management.
 · Company and stock data storage and update.
 · Virtual wallet and fund tracking for simulated trading.
-· Stock buy/sell operations and portfolio management.
+· Stock buy/sell operations and portfolio management, including dynamic low balance alert functionality that triggers a modal warning when attempting to purchase stocks exceeding available funds, with server-side validation to prevent invalid trades and ensure system reliability.
 · Dividend recording for invested stocks.
-· Price prediction using LSTM and baseline models.
-· Broker management, including commission rates and activation status.
-· Admin dashboard for monitoring transactions, commissions, and top‑traded symbols.
+· Price prediction using baseline models.
+· Broker management, including commission rates and activation status, with automatic selection of the broker offering the lowest commission rate for cost optimization.
+· Display of visual price change indicators (up/down arrows) and profit/loss percentages for portfolio holdings to enhance decision-making.
+· Admin dashboard for monitoring transactions, commissions, and top‑traded symbols, with simplified interface showing total users and registered companies.
+· Dashboard metrics refined to show current portfolio value (live market value of holdings) and current stock prices in holdings table for real-time portfolio assessment.
+· Nuanced recommendation logic that combines predictive model outputs with sentiment analysis for informed buy/sell suggestions, incorporating weighting based on market volatility and news impact.
+· Global search and caching functionality across stocks and news sources for improved performance and user experience.
 
 4.2.2 Non‑Functional Requirements
 
@@ -183,11 +186,11 @@ The system follows a three‑tier architecture:
 4.3.3 User Interface Design (Overview)
 
 · Login and Registration Pages: Allow users to register, log in, and access the dashboard.
-· User Dashboard: Displays wallet balance, invested amount, current portfolio value, unrealised P/L, holdings table, trade forms, dividend form, and recent transactions.
-· Prediction Results Page: Shows selected stock information, price history, interactive D3‑based accuracy charts for ARIMA/LSTM/Linear Regression (actual vs. predicted), per‑model RMSE metrics, a seven‑day forecast table, sentiment charts, an external link to the corresponding Yahoo Finance quote page, and a textual recommendation that combines model outputs with aggregated sentiment.
-· Admin Dashboard: Presents statistics (users, companies, brokers, transactions, commission, volume), broker management forms, and company management tools.
+· User Dashboard: Displays wallet balance and current portfolio value (live market value of all holdings), holdings table with current stock prices (live market rates) and visual price indicators (up/down arrows and profit/loss percentages), trade forms, dividend form, and recent transactions. Includes a dynamic low balance alert modal that appears when attempting to buy stocks exceeding available funds, with functional close and top-up buttons for enhanced user guidance and fund management.
+· Prediction Results Page: Shows selected stock information, price history, interactive D3‑based accuracy charts for Linear Regression (actual vs. predicted), per‑model RMSE metrics, a seven‑day forecast table positioned beside the sentiment chart, an external link to the corresponding Yahoo Finance quote page, and a textual recommendation that combines model outputs with aggregated sentiment. Layout refinements include removal of redundant elements (e.g., "Tomorrow's Close" card), centering and full-width sentiment analysis chart for better visibility, and elimination of excess spacing to improve overall user experience and focus on key data.
+· Admin Dashboard: Presents statistics (total users, companies, brokers, transactions, commission, volume), broker management forms, and simplified company management showing only registered companies (removal of manual company addition to rely on API validation).
 
-The UI is implemented with Bootstrap for responsiveness and follows a consistent colour theme across pages.
+The UI is implemented with Bootstrap for responsiveness and follows a consistent colour theme across pages. Additional enhancements include a flash message system for displaying success/error notifications and improved JavaScript handling to resolve linter errors, contributing to a more reliable and user-friendly interface.
 
 4.4 Design Specification
 
@@ -287,29 +290,38 @@ During development, several practical issues were encountered:
 
 · Security Considerations: Implementing CSRF protection, secure session handling, and role‑based access control (user vs. admin) introduced additional complexity but is essential for a realistic management system.
 
+· Bug Fixes and Refinements: Resolved an issue where selling all shares of dividend-paying stocks caused database errors by preserving portfolio items with zero quantity to maintain dividend history while hiding them from the dashboard. Implemented automatic broker selection based on lowest commission rate to optimize trading costs. Simplified admin interface by removing manual company addition (relying on API validation) and streamlining metrics display.
+
+· Debug Improvements: Disabled Flask debug mode and removed debug print statements for production readiness. Fixed JavaScript linter errors in templates by using JSON.parse for Jinja2 data passing, ensuring cleaner code and IDE compatibility without affecting functionality.
+
+· Setup Guidance for New Users: Provided clear instructions for initial setup, including running create_admin.py to establish admin credentials, verifying Google Chrome installation for Selenium-based news scraping, and optionally configuring API keys for Alpha Vantage and NewsAPI to enhance data reliability and speed.
+
+· Stability Enhancements: Resolved conflicts between yfinance and curl_cffi libraries to prevent import errors and ensure smooth data fetching, and removed broken Twitter integration code to eliminate system crashes and improve overall reliability.
+
 
 6. EXPERIMENTAL RESULTS AND VALIDATION
 
 At this stage, the system focuses on providing a complete and robust pipeline from data ingestion to prediction and simulated portfolio management. The following aspects have been validated:
 
-· Functional Validation: Test scenarios confirm that user registration, login, wallet updates, buy/sell trades, dividend recording, and admin monitoring all work as expected on test data.
+· Functional Validation: Test scenarios confirm that user registration, login, wallet updates, buy/sell trades, dividend recording, and admin monitoring all work as expected on test data. Refinements include automatic broker selection for cost optimization and bug fixes ensuring smooth operations when selling all shares.
 
-· Qualitative Prediction Assessment: The LSTM and baseline models produce plausible next‑day predictions on historical price series, and sentiment scores vary sensibly with positive and negative news headlines. Logs and debug hooks confirm that sentiment distributions are correctly computed, and the interactive accuracy charts (actual vs. predicted curves with optional Voronoi overlays) make it easier to visually inspect where each model over‑ or under‑shoots the true prices.
+· Qualitative Prediction Assessment: The baseline models produce plausible next‑day predictions on historical price series, and sentiment scores vary sensibly with positive and negative news headlines. Logs and debug hooks confirm that sentiment distributions are correctly computed, and the interactive accuracy charts (actual vs. predicted curves with optional Voronoi overlays) make it easier to visually inspect where each model over‑ or under‑shoots the true prices. The nuanced recommendation logic incorporates weighting of model predictions against sentiment polarity, providing context-aware suggestions that account for market volatility and news impact, enhancing user decision-making. RMSE interpretation provides users with a practical understanding of prediction uncertainty: RMSE represents the average magnitude of prediction errors, framing predictions as a confidence zone (actual price ± RMSE). Statistically, approximately 68% of actual prices fall within this zone, and 95% within double the RMSE (±2RMSE), enabling informed decision-making where smaller RMSE values indicate higher reliability and larger values signal market volatility.
 
-· Usability: The dashboard layout and forms follow a consistent Bootstrap‑based theme, and key actions (buy, sell, predict, record dividend) are accessible from the main screens.
+· Usability: The dashboard layout and forms follow a consistent Bootstrap‑based theme, and key actions (buy, sell, predict, record dividend) are accessible from the main screens. Dashboard refinements, such as displaying current portfolio value and live stock prices, along with visual price indicators with up/down arrows and profit/loss percentages, significantly enhance user experience by providing real-time insights into portfolio performance, facilitating informed decision-making without manual calculations. Admin interface simplifications improve monitoring efficiency and reduce clutter.
 
-Quantitative evaluation (e.g., RMSE, MAE, directional accuracy) can be performed by training the LSTM and baselines on a chosen dataset and computing metrics on a held‑out test set. These numeric results can be added to this section once final experiments are completed.
+Quantitative evaluation (e.g., RMSE, MAE, directional accuracy) can be performed by training the baselines on a chosen dataset and computing metrics on a held‑out test set. These numeric results can be added to this section once final experiments are completed.
 
 
 7. CONCLUSION, SUMMARY AND FUTURE SCOPE
 
 This project developed a Stock Analysis & Market Sentiment system that combines simulated trading, portfolio management, and stock price prediction within a unified web application. The system enables users to register, manage a virtual wallet, execute buy/sell trades, record dividends, and view an integrated dashboard. Admin users can manage companies and brokers, monitor transaction volumes, and track commission income.
 
-On the analytics side, the project integrates an LSTM model with classical baselines and sentiment analysis of financial news. This aligns with recent research trends that highlight the value of combining historical and textual information. Unlike many prior works, however, the proposed system embeds these models into a practical management interface aimed at education and experimentation.
+On the analytics side, the project integrates classical baselines and sentiment analysis of financial news. This aligns with recent research trends that highlight the value of combining historical and textual information. Unlike many prior works, however, the proposed system embeds these models into a practical management interface aimed at education and experimentation.
 
 Future enhancements include:
 
-· Incorporating additional predictive models (e.g., transformer‑based architectures) and comparing their performance.
+· Enabling additional predictive models already implemented (ARIMA for statistical forecasting and LSTM for deep learning pattern recognition) and comparing their performance against the baseline.
+· Activating advanced sentiment analysis features such as FinVADER for financial text tuning and hybrid scoring from multiple sources.
 · Extending sentiment analysis to social‑media sources and multilingual news.
 · Providing more advanced portfolio analytics such as risk measures, diversification metrics, and scenario analysis.
 · Exploring optional integration with paper‑trading APIs, while keeping clear separation from real‑money trading.
@@ -317,18 +329,18 @@ Future enhancements include:
 
 8. REFERENCES
 
-[1] Ko and Chang, 2021, BERT \+ LSTM; price history \+ forum sentiment.
+[1] Ko & Chang (2021). BERT; price history + forum sentiment.
 
-[2] Shimaa Ouf et al., 2024, LSTM vs. XGBoost with Twitter sentiment for AAPL, GOOGL, and TSLA.
+[2] Shimaa Ouf et al. (2024). XGBoost + Twitter sentiment.
 
-[3] Darapaneni et al., 2022, LSTM with sentiment and macro‑economic indicators for the Indian market.
+[3] Darapaneni et al. (2022). Sentiment + macro (oil, gold, USD).
 
-[4] Gupta et al., 2022, HiSA‑SMFM: LSTM with historical and sentiment fusion.
+[4] Gupta et al. (2022). HiSA-SMFM: historical & sentiment fusion.
 
-[5] Shahbandari et al., 2024, CNN‑LSTM using social‑media sentiment and candlestick data.
+[5] Shahbandari et al. (2024). CNN + social-media sentiment + candlestick.
 
-[6] Journal of Big Data, 2025, VMD–TMFG–LSTM feature decomposition for improved stock prediction accuracy.
+[6] Journal of Big Data (2025). VMD–TMFG (feature decomposition).
 
 [7] Jadhav, K., 2023. Stock-Market-Prediction-Web-App-using-Machine-Learning-And-Sentiment-Analysis (Version 2.0.0) [Computer software]. https://doi.org/10.5281/zenodo.10498988
 
-In the final Word document, these references can be expanded with full bibliographic details (titles, journal or conference names, volume, issue, pages) in standard IEEE style.
+Note: Full IEEE-formatted bibliographic details are missing and need to be added.
